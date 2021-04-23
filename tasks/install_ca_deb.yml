@@ -1,0 +1,22 @@
+# Install ca-certificates
+- name: Install ca-certificates
+  become: yes
+  apt:
+    name: 
+      - ca-certificates
+    state: present
+    update_cache: yes
+
+# Copy CA certificate
+- name: Copy CA certificate
+  become: yes
+  copy:
+    src: '{{ cert_path }}/ca/zabbix_ca.pem'
+    dest: /usr/local/share/ca-certificates/zabbix_ca.crt
+    owner: root
+    group: root
+    mode: 0644
+
+- name: update trusted ca debian
+  shell: /usr/sbin/update-ca-certificates
+  become: yes

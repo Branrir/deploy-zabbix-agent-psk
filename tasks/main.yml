@@ -1,0 +1,116 @@
+---
+# tasks file for deploy-zabbix-agent
+
+- name: Run Debian/Ubuntu playbook
+  import_tasks: install_deb.yml
+  when: ansible_facts['distribution'] == 'Debian' or ansible_facts['distribution'] == 'Ubuntu'
+
+- name: Run RHEL/CentOS playbook
+  import_tasks: install_rhel.yml
+  when: ansible_facts['distribution'] == 'CentOS' or ansible_facts['distribution'] == 'RedHat'
+
+- name: Create a log directory if it does not exist
+  file:
+    path: /var/log/zabbix-agent/
+    state: directory
+    mode: '0755'
+  become: yes
+
+# install CA certificate
+- name: Run CA installation Debian/Ubuntu
+  import_tasks: install_ca_deb.yml
+  when: ansible_facts['distribution'] == 'Debian' or ansible_facts['distribution'] == 'Ubuntu'
+
+- name: Run CA installation RHEL/CentOS
+  import_tasks: install_ca_rhel.yml
+  when: ansible_facts['distribution'] == 'CentOS' or ansible_facts['distribution'] == 'RedHat'
+
+# Create client certificate
+- name: Create Client Certificate
+  import_tasks: create_cert.yml
+
+# install client certificate
+- name: Install client certificate
+  become: yes
+    src: '{{ cert_path }}/cert/{{ hostname }}.crt'
+    dest: '/etc/zabbix/{{ hostname }}.pem'
+    owner: zabbix
+    group: zabbix
+
+- name: Install client key
+  become: yes
+  copy:
+    src: '{{ cert_path }}/cert/{{ hostname }}.key'
+    dest: '/etc/zabbix/{{ hostname }}.key'
+    owner: zabbix
+    group: zabbix
+    mode: 0644
+
+
+# configuration for  zabbix-agent2 on supported distributions
+- name: Configutation for Server/Proxy (zabbix_agent2)
+  template:
+    src: zabbix-agent2.conf.j2
+    dest: "/etc/zabbix/zabbix_agent2.conf"
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+  when: 
+    - not (ansible_facts['distribution'] == 'Debian' and ansible_facts['distribution_major_version'] == '8')
+    - not (ansible_facts['distribution'] == 'Debian' and ansible_facts['distribution_major_version'] == '7') 
+  
+# configuration for zabbix-agent when zabbix-agent2 not supported
+- name: Configuration for Server/Proxy (zabbix_agent)
+  template:
+    src: zabbix-agentd.conf.j2
+    dest: "/etc/zabbix/zabbix_agentd.conf"
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+  when: (ansible_facts['distribution'] == 'Debian' and ansible_facts['distribution_major_version'] == '8') or
+        (ansible_facts['distribution'] == 'Debian' and ansible_facts['distribution_major_version'] == '7')
+
+
+#- name: RHEL Firewall
+#  firewalld:
+#    port: 10050/tcp
+#    zone: public
+#    permanent: true
+#    state: enabled
+#    immediate: yes
+#  become: yes
+#  when: ansible_facts['distribution'] == 'CentOS' or ansible_facts['distribution'] == 'RedHat'
+
+
+#- name: RHEL Firewall
+#  firewalld:
+#    port: 10051/tcp
+#    zone: public
+#    permanent: true
+#    state: enabled
+#    immediate: yes
+#  become: yes
+#  when: ansible_facts['distribution'] == 'CentOS' or ansible_facts['distribution'] == 'RedHat'
+
+
+# restart zabbix-agent
+- name: Check zabbix-agent2 service
+  service:
+    name: zabbix-agent2
+    state: restarted
+    enabled: yes
+  become: yes
+  when: 
+    - not (ansible_facts['distribution'] == 'Debian' and ansible_facts['distribution_major_version'] == '8')
+    - not (ansible_facts['distribution'] == 'Debian' and ansible_facts['distribution_major_version'] == '7')
+
+- name: Check zabbix-agent service
+  service:
+    name: zabbix-agent
+    state: restarted
+    enabled: yes
+  become: yes
+  when: (ansible_facts['distribution'] == 'Debian' and ansible_facts['distribution_major_version'] == '8') or
+        (ansible_facts['distribution'] == 'Debian' and ansible_facts['distribution_major_version'] == '7')
