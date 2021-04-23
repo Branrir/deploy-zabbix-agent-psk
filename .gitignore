@@ -1,3 +1,3 @@
 #travis
 .travis.yml
-/files/zabbix-agent.psk
+files/zabbix-agent.psk
