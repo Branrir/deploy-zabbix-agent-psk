@@ -29,19 +29,26 @@
 - name: Create Client Certificate
   import_tasks: create_cert.yml
 
-# install client certificate
+# install client certificate and CA certificate
+- name: Install CA certificate
+  become: yes
+    src: '{{ cert_path }}/ca/zabbix_ca.pem'
+    dest: '/etc/zabbix/zabbix_ca.pem'
+    owner: zabbix
+    group: zabbix
+
 - name: Install client certificate
   become: yes
-    src: '{{ cert_path }}/cert/{{ hostname }}.crt'
-    dest: '/etc/zabbix/{{ hostname }}.pem'
+    src: '{{ cert_path }}/cert/{{ ansible_facts['nodename'] }}.crt'
+    dest: '/etc/zabbix/{{ ansible_facts['nodename'] }}.pem'
     owner: zabbix
     group: zabbix
 
 - name: Install client key
   become: yes
   copy:
-    src: '{{ cert_path }}/cert/{{ hostname }}.key'
-    dest: '/etc/zabbix/{{ hostname }}.key'
+    src: '{{ cert_path }}/cert/{{ ansible_facts['nodename'] }}.key'
+    dest: '/etc/zabbix/{{ ansible_facts['nodename'] }}.key'
     owner: zabbix
     group: zabbix
     mode: 0644

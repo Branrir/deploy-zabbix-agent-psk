@@ -2,14 +2,14 @@
   connection: local
   delegate_to: localhost
   openssl_privatekey:
-    path: '{{ cert_path }}/cert/{{ hostname }}.key'
+    path: '{{ cert_path }}/cert/{{ ansible_facts['nodename'] }}.key'
 
 - name: Generate CSR
   connection: local
   delegate_to: localhost
   openssl_csr:
-    path: '{{ cert_path }}/cert/{{ hostname }}.csr'
-    privatekey_path: '{{ cert_path }}/cert/{{ hostname }}.key'
+    path: '{{ cert_path }}/cert/{{ ansible_facts['nodename'] }}.csr'
+    privatekey_path: '{{ cert_path }}/cert/{{ ansible_facts['nodename'] }}.key'
     country_name: DE
     organization_name: '{{organization}}'
     common_name: "{{hostname}}"
@@ -18,8 +18,8 @@
   connection: local
   delegate_to: localhost
   openssl_certificate:
-    path: '{{ cert_path }}/cert/{{ hostname }}.crt'
-    csr_path: '{{ cert_path }}/cert/{{ hostname }}.csr'
+    path: '{{ cert_path }}/cert/{{ ansible_facts['nodename'] }}.crt'
+    csr_path: '{{ cert_path }}/cert/{{ ansible_facts['nodename'] }}.csr'
     ownca_path: '{{ cert_path }}/ca/zabbix_ca.pem'
     ownca_privatekey_path: '{{ cert_path }}/ca/zabbix_ca.key'
     provider: ownca

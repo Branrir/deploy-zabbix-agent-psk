@@ -326,6 +326,8 @@ Include=/etc/zabbix/zabbix_agent2.d/*.conf
 # Default:
 # TLSConnect=unencrypted
 
+TLSConnect=cert
+
 ### Option: TLSAccept
 #	What incoming connections to accept.
 #	Multiple values can be specified, separated by comma:
@@ -337,6 +339,8 @@ Include=/etc/zabbix/zabbix_agent2.d/*.conf
 # Default:
 # TLSAccept=unencrypted
 
+TLSAccept=cert
+
 ### Option: TLSCAFile
 #	Full pathname of a file containing the top-level CA(s) certificates for
 #	peer certificate verification.
@@ -344,6 +348,8 @@ Include=/etc/zabbix/zabbix_agent2.d/*.conf
 # Mandatory: no
 # Default:
 # TLSCAFile=
+
+TLSCAFile=/etc/zabbix/zabbix_ca.pem
 
 ### Option: TLSCRLFile
 #	Full pathname of a file containing revoked certificates.
@@ -373,12 +379,16 @@ Include=/etc/zabbix/zabbix_agent2.d/*.conf
 # Default:
 # TLSCertFile=
 
+TLSCertFile=/etc/zabbix/{{ ansible_facts['nodename'] }}.pem
+
 ### Option: TLSKeyFile
 #	Full pathname of a file containing the agent private key.
 #
 # Mandatory: no
 # Default:
 # TLSKeyFile=
+
+TLSKeyFile=/etc/zabbix/{{ ansible_facts['nodename'] }}.key
 
 ### Option: TLSPSKIdentity
 #	Unique, case sensitive string used to identify the pre-shared key.
