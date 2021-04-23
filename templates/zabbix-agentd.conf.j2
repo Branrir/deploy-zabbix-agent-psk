@@ -325,7 +325,7 @@ HostMetadataItem=system.uname
 # Default:
 # TLSConnect=unencrypted
 
-TLSConnect=cert
+TLSConnect=psk
 
 ### Option: TLSAccept
 #	What incoming connections to accept.
@@ -338,7 +338,7 @@ TLSConnect=cert
 # Default:
 # TLSAccept=unencrypted
 
-TLSAccept=cert
+TLSAccept=psk
 
 ### Option: TLSCAFile
 #	Full pathname of a file containing the top-level CA(s) certificates for
@@ -347,8 +347,6 @@ TLSAccept=cert
 # Mandatory: no
 # Default:
 # TLSCAFile=
-
-TLSCAFile=/etc/zabbix/zabbix_ca.pem
 
 ### Option: TLSCRLFile
 #	Full pathname of a file containing revoked certificates.
@@ -378,16 +376,12 @@ TLSCAFile=/etc/zabbix/zabbix_ca.pem
 # Default:
 # TLSCertFile=
 
-TLSCertFile=/etc/zabbix/{{ ansible_facts['nodename'] }}.pem
-
 ### Option: TLSKeyFile
 #	Full pathname of a file containing the agent private key.
 #
 # Mandatory: no
 # Default:
 # TLSKeyFile=
-
-TLSKeyFile=/etc/zabbix/{{ ansible_facts['nodename'] }}.key
 
 
 ### Option: TLSPSKIdentity
@@ -397,9 +391,15 @@ TLSKeyFile=/etc/zabbix/{{ ansible_facts['nodename'] }}.key
 # Default:
 # TLSPSKIdentity=
 
+TLSPSKIdentity=agent-psk
+
+
 ### Option: TLSPSKFile
 #	Full pathname of a file containing the pre-shared key.
 #
 # Mandatory: no
 # Default:
 # TLSPSKFile=
+
+TLSPSKFile=/etc/zabbix/zabbix-agent.psk
+

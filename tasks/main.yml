@@ -16,39 +16,12 @@
     mode: '0755'
   become: yes
 
-# install CA certificate
-- name: Run CA installation Debian/Ubuntu
-  import_tasks: install_ca_deb.yml
-  when: ansible_facts['distribution'] == 'Debian' or ansible_facts['distribution'] == 'Ubuntu'
-
-- name: Run CA installation RHEL/CentOS
-  import_tasks: install_ca_rhel.yml
-  when: ansible_facts['distribution'] == 'CentOS' or ansible_facts['distribution'] == 'RedHat'
-
-# Create client certificate
-- name: Create Client Certificate
-  import_tasks: create_cert.yml
-
-# install client certificate and CA certificate
-- name: Install CA certificate
-  become: yes
-    src: '{{ cert_path }}/ca/zabbix_ca.pem'
-    dest: '/etc/zabbix/zabbix_ca.pem'
-    owner: zabbix
-    group: zabbix
-
-- name: Install client certificate
-  become: yes
-    src: '{{ cert_path }}/cert/{{ ansible_facts['nodename'] }}.crt'
-    dest: '/etc/zabbix/{{ ansible_facts['nodename'] }}.pem'
-    owner: zabbix
-    group: zabbix
-
-- name: Install client key
+# Copy PSK
+- name: Copy PSK
   become: yes
   copy:
-    src: '{{ cert_path }}/cert/{{ ansible_facts['nodename'] }}.key'
-    dest: '/etc/zabbix/{{ ansible_facts['nodename'] }}.key'
+    src: 'zabbix-agent.psk'
+    dest: /etc/zabbix/zabbix-agent.psk
     owner: zabbix
     group: zabbix
     mode: 0644
